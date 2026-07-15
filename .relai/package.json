@@ -1,0 +1,12 @@
+{
+  "name": "relai-workspace",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@relai-ai/relai": "^0.1.7",
+    "relai-airline-support-agent": "file:.."
+  },
+  "devDependencies": {
+    "tsx": "^4.23.1"
+  }
+}

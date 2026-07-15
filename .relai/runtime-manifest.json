@@ -1,0 +1,18 @@
+{
+  "schema_version": "relai.runtime_manifest.v1",
+  "env": [
+    {
+      "name": "OPENAI_API_KEY",
+      "required": false,
+      "sensitive": true,
+      "reason": "Set this to run the agent with OpenAI models. If both provider keys are present, the project prefers OpenAI."
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "required": false,
+      "sensitive": true,
+      "reason": "Set this to run the agent with Anthropic through the OpenAI Agents AI SDK adapter when OPENAI_API_KEY is not present."
+    }
+  ],
+  "files": []
+}

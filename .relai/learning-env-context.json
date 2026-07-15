@@ -1,0 +1,19 @@
+{
+  "schema_version": "relai.learning_env_context.v1",
+  "agent": {
+    "entrypoint": "relai-airline-support-agent:createAirlineAgent",
+    "runner_summary": "Runs the OpenAI Agents SDK airline support agent through the TypeScript simulator adapter using one plain string user turn at a time."
+  },
+  "components": [],
+  "log_notes": [
+    "Agent learning environments should send a raw string in each fixed turn. The adapter rejects structured turn objects.",
+    "The final simulation output is the assistant text extracted from the OpenAI Agents SDK run result.",
+    "Seat-change scenarios can mutate in-memory booking state through the change_seat tool, so isolate those scenarios or mock that tool when deterministic behavior matters."
+  ],
+  "learning_env_guidance": [
+    "Use agent environments for end-to-end behavior. This project does not expose stable exported tool implementations for component-target learning environments.",
+    "Provide the user message directly as FixedTurn content or a FixedInput turn string, for example a booking lookup question, baggage policy question, or seat-change request.",
+    "Prefer airline-support prompts that naturally invoke the built-in tools: lookup_booking, baggage_policy, and change_seat.",
+    "Set either OPENAI_API_KEY or ANTHROPIC_API_KEY in the runtime environment before simulation. If both are set, the project uses OpenAI."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "relai.mock_manifest.v1",
+  "items": [
+    {
+      "id": "lookup_booking",
+      "target": "lookup_booking",
+      "kind": "tool",
+      "final_policy": "do_not_mock",
+      "reason": "Booking lookup is a local deterministic tool and is safe to run live unless a scenario needs a tailored booking response.",
+      "source": "src/agent.ts",
+      "cannot_mock_reason": null
+    },
+    {
+      "id": "baggage_policy",
+      "target": "baggage_policy",
+      "kind": "tool",
+      "final_policy": "do_not_mock",
+      "reason": "Baggage policy lookup is local deterministic logic that is usually safe to run live.",
+      "source": "src/agent.ts",
+      "cannot_mock_reason": null
+    },
+    {
+      "id": "change_seat",
+      "target": "change_seat",
+      "kind": "tool",
+      "final_policy": "mock",
+      "reason": "Seat change mutates the in-memory demo booking state, so mocks are often preferable when a scenario should avoid state changes or force a specific outcome.",
+      "source": "src/agent.ts",
+      "cannot_mock_reason": null
+    }
+  ]
+}
