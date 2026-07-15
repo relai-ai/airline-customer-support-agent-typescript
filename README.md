@@ -41,6 +41,20 @@ Pass a log name to save the session to a fixed file such as `logs/off-topic-guar
 
 Type `exit`, `quit`, or `q` to end the chat. Each run creates a new session log and prints the saved path.
 
+## Agent Entry Point
+
+The root package exports the agent factory so RELAI (and other callers) can
+load it deterministically via the package's `main`/`exports` entry:
+
+```ts
+import { createAirlineAgent } from 'relai-airline-support-agent';
+
+const agent = createAirlineAgent();
+```
+
+`createAirlineAgent()` returns an OpenAI Agents SDK `Agent` configured with the
+support tools and the model selected from your environment keys.
+
 ## Local Logs
 
 Each chat session is saved as JSONL under `logs/`:
