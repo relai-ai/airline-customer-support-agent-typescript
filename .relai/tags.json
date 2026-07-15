@@ -1,0 +1,11 @@
+{
+  "schema_version": "relai.tags.v1",
+  "tags": {
+    "airline-reply-ends-with-signoff": [
+      ".relai/learning-envs/response-signoff.ts"
+    ],
+    "end-to-end": [
+      ".relai/learning-envs/response-signoff.ts"
+    ]
+  }
+}
