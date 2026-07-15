@@ -37,22 +37,73 @@ const BOOKINGS: Record<string, Booking> = {
   },
 };
 
+/**
+ * Coerce a tool argument to a trimmed string.
+ *
+ * Under the Agents SDK's strict-schema handling a model may send `null`
+ * (or omit a field) for a tool argument, so `execute` can receive a value
+ * that is not the string the Zod type promises. Normalizing here keeps the
+ * tools from throwing on `undefined`/`null` and lets them return a graceful
+ * response instead.
+ */
+function asText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+export function lookupBookingText(confirmationCode: unknown): string {
+  const code = asText(confirmationCode).toUpperCase();
+  if (!code) {
+    return 'Please share a confirmation code so I can look up the booking.';
+  }
+  const booking = BOOKINGS[code];
+  if (booking === undefined) {
+    return 'No booking was found for that confirmation code.';
+  }
+  return (
+    `${booking.passenger} is booked on ${booking.route} departing ` +
+    `${booking.departure}. Seat ${booking.seat}. Status: ${booking.status}.`
+  );
+}
+
+export function baggagePolicyText(ticketType: unknown): string {
+  const normalized = (asText(ticketType) || 'standard').toLowerCase();
+  if (normalized === 'basic' || normalized === 'basic economy') {
+    return 'Basic economy includes one personal item. Carry-on bags and checked bags require a fee.';
+  }
+  if (
+    normalized === 'business' ||
+    normalized === 'first' ||
+    normalized === 'premium'
+  ) {
+    return 'Premium cabins include one carry-on and two checked bags up to 70 pounds each.';
+  }
+  return 'Standard tickets include one carry-on and one checked bag up to 50 pounds.';
+}
+
+export function changeSeatText(
+  confirmationCode: unknown,
+  requestedSeat: unknown,
+): string {
+  const code = asText(confirmationCode).toUpperCase();
+  const booking = code ? BOOKINGS[code] : undefined;
+  if (booking === undefined) {
+    return 'Seat changes require a valid confirmation code.';
+  }
+  const seat = asText(requestedSeat).toUpperCase();
+  if (!seat) {
+    return 'Please tell me which seat you would like.';
+  }
+  booking.seat = seat;
+  return `Seat updated to ${seat} for booking ${code}.`;
+}
+
 const lookupBooking = tool({
   name: 'lookup_booking',
   description: 'Look up a demo booking by confirmation code.',
   parameters: z.object({
     confirmation_code: z.string(),
   }),
-  execute: ({ confirmation_code }) => {
-    const booking = BOOKINGS[confirmation_code.trim().toUpperCase()];
-    if (booking === undefined) {
-      return 'No booking was found for that confirmation code.';
-    }
-    return (
-      `${booking.passenger} is booked on ${booking.route} departing ` +
-      `${booking.departure}. Seat ${booking.seat}. Status: ${booking.status}.`
-    );
-  },
+  execute: ({ confirmation_code }) => lookupBookingText(confirmation_code),
 });
 
 const baggagePolicy = tool({
@@ -61,20 +112,7 @@ const baggagePolicy = tool({
   parameters: z.object({
     ticket_type: z.string().nullable().default('standard'),
   }),
-  execute: ({ ticket_type }) => {
-    const normalized = (ticket_type ?? 'standard').trim().toLowerCase();
-    if (normalized === 'basic' || normalized === 'basic economy') {
-      return 'Basic economy includes one personal item. Carry-on bags and checked bags require a fee.';
-    }
-    if (
-      normalized === 'business' ||
-      normalized === 'first' ||
-      normalized === 'premium'
-    ) {
-      return 'Premium cabins include one carry-on and two checked bags up to 70 pounds each.';
-    }
-    return 'Standard tickets include one carry-on and one checked bag up to 50 pounds.';
-  },
+  execute: ({ ticket_type }) => baggagePolicyText(ticket_type),
 });
 
 const changeSeat = tool({
@@ -85,16 +123,8 @@ const changeSeat = tool({
     confirmation_code: z.string(),
     requested_seat: z.string(),
   }),
-  execute: ({ confirmation_code, requested_seat }) => {
-    const code = confirmation_code.trim().toUpperCase();
-    const booking = BOOKINGS[code];
-    if (booking === undefined) {
-      return 'Seat changes require a valid confirmation code.';
-    }
-    const seat = requested_seat.trim().toUpperCase();
-    booking.seat = seat;
-    return `Seat updated to ${seat} for booking ${code}.`;
-  },
+  execute: ({ confirmation_code, requested_seat }) =>
+    changeSeatText(confirmation_code, requested_seat),
 });
 
 export const AIRLINE_AGENT_INSTRUCTIONS =
